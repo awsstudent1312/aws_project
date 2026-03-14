@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
+const bcrypt = require("bcrypt");
+const keyround = 10;
+
 const knex = require("knex")({
   client: "sqlite3",
   connection: {
@@ -21,7 +24,10 @@ router.post("/", async (req, res, next) => {
     return;
   }
   try {
-    await knex("users").insert({ name: body.user, password: body.pass });
+    await knex("users").insert({
+      name: body.user,
+      password: bcrypt.hashSync(body.pass, keyround),
+    });
   } catch (error) {
     res.json({ error: error.code });
     return;
