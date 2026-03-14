@@ -1,8 +1,23 @@
 const express = require("express");
 const router = express.Router();
 
-router.get("/", function (req, res, next) {
-  res.send("<h1>Signin</h1>");
+const knex = require("knex")({
+  client: "sqlite3",
+  connection: {
+    filename: "./db.sqlite3",
+  },
+  debug: true,
+});
+
+router.post("/", async (req, res, next) => {
+  const body = req.body;
+  console.log(body);
+  if (body.pass != body.verif) {
+    res.json({ error: "password isn't the same" });
+    return;
+  }
+  await knex("users").insert({ name: body.user, password: body.pass });
+  res.json({ msg: "user added !" });
 });
 
 module.exports = router;
