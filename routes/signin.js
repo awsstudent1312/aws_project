@@ -15,6 +15,9 @@ const knex = require("knex")({
 router.post("/", async (req, res, next) => {
   const body = req.body;
   console.log(body);
+  if (body.pass == "" || body.user == "") {
+    res.json({ error: "you need to complete all the input" });
+  }
   if (body.pass != body.verif) {
     res.json({ error: "password isn't the same" });
     return;
