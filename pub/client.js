@@ -28,6 +28,20 @@ b_create_account.addEventListener("click", () => {
   div_modal.className = "modal-create";
   const div_container = document.createElement("div");
   div_container.className = "modal-container";
+  const modal = create_form();
+  div_container.appendChild(modal);
+  div_modal.appendChild(div_container);
+  document.body.appendChild(div_modal);
+  //intercept submit
+  interceptModal();
+});
+
+//test
+const title = document.createElement("h1");
+title.innerHTML = "hello in my app";
+document.body.appendChild(title);
+
+function create_form() {
   const modal = document.createElement("form");
   modal.method = "POST";
   modal.action = "/signin";
@@ -59,14 +73,15 @@ b_create_account.addEventListener("click", () => {
   div_pass.appendChild(password);
   div_confirm.appendChild(label_confirm);
   div_confirm.appendChild(confirm);
+
   modal.appendChild(div_user);
   modal.appendChild(div_pass);
   modal.appendChild(div_confirm);
   modal.appendChild(submit);
-  div_container.appendChild(modal);
-  div_modal.appendChild(div_container);
-  document.body.appendChild(div_modal);
-  //intercept submit
+  return modal;
+}
+
+async function interceptModal() {
   document
     .getElementById("modal_login")
     .addEventListener("submit", async (event) => {
@@ -90,9 +105,4 @@ b_create_account.addEventListener("click", () => {
       document.body.appendChild(h_res);
       document.querySelector(".modal-create").remove();
     });
-});
-
-//test
-const title = document.createElement("h1");
-title.innerHTML = "hello in my app";
-document.body.appendChild(title);
+}
