@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
+const bcrypt = require("bcrypt");
+const keyround = 10;
+
 const knex = require("knex")({
   client: "sqlite3",
   connection: {
@@ -16,7 +19,10 @@ router.post("/", async (req, res, next) => {
     res.json({ error: "password isn't the same" });
     return;
   }
-  await knex("users").insert({ name: body.user, password: body.pass });
+  await knex("users").insert({
+    name: body.user,
+    password: bcrypt.hashSync(body.pass, keyround),
+  });
   res.json({ msg: "user added !" });
 });
 
