@@ -10,6 +10,7 @@ const signinRouter = require('./routes/signin');
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
 
 app.use('/pub', express.static('./pub'));
 
