@@ -1,13 +1,23 @@
-const express = require('express');
+const express = require("express");
 
-const indexRouter = require('./routes/index');
-const loginRouter = require('./routes/login');
-const signinRouter = require('./routes/signin');
+const bodyParser = require("body-parser");
+const consolidate = require("consolidate");
+
+const indexRouter = require("./routes/index");
+const loginRouter = require("./routes/login");
+const signinRouter = require("./routes/signin");
 
 const app = express();
 
-app.use('/', indexRouter);
-app.use('/login', loginRouter);
-app.use('/signin', signinRouter);
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use("/pub", express.static("./pub"));
+
+app.engine("html", consolidate.nunjucks);
+app.set("view engine", "nunjucks");
+
+app.use("/", indexRouter);
+app.use("/login", loginRouter);
+app.use("/signin", signinRouter);
 
 app.listen(3000);
