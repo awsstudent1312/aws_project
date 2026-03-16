@@ -28,10 +28,16 @@ router.post("/", async (req, res, next) => {
       name: body.user,
       password: bcrypt.hashSync(body.pass, keyround),
     });
-  } catch (error) {
-    res.json({ error: error.code });
+  } catch (err) {
+    console.log(err);
+    if (err.errno == 19) {
+      res.json({ error: `user:${body.user} already exist` });
+    } else {
+      res.json({ error: err.code });
+    }
     return;
   }
+
   res.json({ msg: "user added !" });
 });
 
