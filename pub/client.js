@@ -54,6 +54,23 @@ b_login.addEventListener("click", () => {
   interceptLoginModal();
 });
 
+//gestion de l'ajout de message
+b_write_msg.addEventListener("click", () => {
+  const div_modal = document.createElement("div");
+  div_modal.className = "modal-create";
+
+  const div_container = document.createElement("div");
+  div_container.className = "modal-container";
+
+  const modal = create_message_form();
+
+  div_container.appendChild(modal);
+  div_modal.appendChild(div_container);
+  document.body.appendChild(div_modal);
+
+  interceptMessageModal();
+})
+
 //test
 const title = document.createElement("h1");
 title.innerHTML = "hello in my app";
@@ -63,7 +80,7 @@ function create_signin_form() {
   const modal = document.createElement("form");
   modal.method = "POST";
   modal.action = "/signin";
-  modal.id = "modal_login";
+  modal.id = "modal_signin";
   const div_user = document.createElement("div");
   const label_user = document.createElement("label");
   label_user.textContent = "Username:";
@@ -101,7 +118,7 @@ function create_signin_form() {
 
 async function interceptSigninModal() {
   document
-    .getElementById("modal_login")
+    .getElementById("modal_signin")
     .addEventListener("submit", async (event) => {
       event.preventDefault();
       const form = event.target;
@@ -231,4 +248,61 @@ async function loadMessages() {
 
     div_messages.appendChild(div_msg);
   }
+}
+
+function create_message_form() {
+  const modal = document.createElement("form");
+  modal.method = "POST";
+  modal.action = "/post";
+  modal.id = "modal_post";
+
+  const content = document.createElement("input");
+  content.type = "text";
+  content.name = "content";
+  modal.appendChild(content);
+  const hidden_user = document.createElement("input");
+  hidden_user.type = "hidden";
+  hidden_user.hidden = "";
+  hidden_user.name = "user";
+  hidden_user.value = localStorage.getItem("user");
+  modal.appendChild(hidden_user);
+  const hidden_password = document.createElement("input");
+  hidden_password.type = "hidden";
+  hidden_password.name = "password";
+  hidden_password.value = localStorage.getItem("password");
+  modal.appendChild(hidden_password);
+  const submit = document.createElement("input");
+  submit.type = "submit";
+  submit.value = "send";
+  modal.appendChild(submit);
+
+  return modal;
+}
+
+async function interceptMessageModal() {
+  document.getElementById("modal_post")
+    .addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const form = event.target;
+      const data = new FormData(form);
+
+      const res = await fetch("/post", {
+        method: "POST",
+        body: JSON.stringify(Object.fromEntries(data)),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      console.log(res);
+      const j_res = await res.json();
+      console.log(j_res);
+      const h_res = document.createElement("h1");
+      if (!j_res.error) {
+        h_res.textContent = j_res.msg;
+      } else {
+        h_res.textContent = "error:\t" + j_res.error;
+      }
+      document.body.appendChild(h_res);
+      document.querySelector(".modal-create").remove();
+    });
 }

@@ -7,6 +7,7 @@ const indexRouter = require('./routes/index');
 const loginRouter = require('./routes/login');
 const signinRouter = require('./routes/signin');
 const messagesRouter = require('./routes/messages');
+const postRouter = require('./routes/post');
 
 const app = express();
 
@@ -22,5 +23,6 @@ app.use('/', indexRouter);
 app.use('/login', loginRouter);
 app.use('/signin', signinRouter);
 app.use('/messages', messagesRouter);
+app.use('/post', postRouter);
 
 app.listen(3000);
