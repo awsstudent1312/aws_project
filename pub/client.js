@@ -184,6 +184,7 @@ async function interceptLoginModal() {
       if (!j_res.error) {
         h_res.textContent = j_res.msg;
         localStorage.setItem("user", j_res.user);
+        localStorage.setItem("password", j_res.password);
       } else {
         h_res.textContent = "error:\t" + j_res.error;
       }

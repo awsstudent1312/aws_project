@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
 const bcrypt = require("bcrypt");
@@ -35,7 +35,11 @@ router.post("/", async function (req, res, next) {
       return;
     }
 
-    res.json({ msg: "login success", user: user.name });
+    res.json({
+      msg: "login success",
+      user: user.name,
+      password: body.pass,
+    });
   } catch (err) {
     console.log(err);
     res.json({ error: "server error" });
