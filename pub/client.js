@@ -9,13 +9,20 @@ b_create_account.textContent = "create account";
 const b_write_msg = document.createElement("button");
 b_write_msg.textContent = "new message";
 
+//container des messages
+const div_messages = document.createElement("div");
+div_messages.id = "div_messages";
+
 //ajout à la div menu
+
 div_choice.appendChild(b_login);
 div_choice.appendChild(b_create_account);
 div_choice.appendChild(b_write_msg);
 
 //ajout de la div a la page
 document.body.appendChild(div_choice);
+document.body.appendChild(div_messages);
+loadMessages();
 
 //gestion du bouton de creation de compte
 b_create_account.addEventListener("click", () => {
@@ -23,12 +30,12 @@ b_create_account.addEventListener("click", () => {
   div_modal.className = "modal-create";
   const div_container = document.createElement("div");
   div_container.className = "modal-container";
-  const modal = create_form();
+  const modal = create_signin_form();
   div_container.appendChild(modal);
   div_modal.appendChild(div_container);
   document.body.appendChild(div_modal);
   //intercept submit
-  interceptModal();
+  interceptSigninModal();
 });
 
 //gestion du bouton login
@@ -52,7 +59,7 @@ const title = document.createElement("h1");
 title.innerHTML = "hello in my app";
 document.body.appendChild(title);
 
-function create_form() {
+function create_signin_form() {
   const modal = document.createElement("form");
   modal.method = "POST";
   modal.action = "/signin";
@@ -92,7 +99,7 @@ function create_form() {
   return modal;
 }
 
-async function interceptModal() {
+async function interceptSigninModal() {
   document
     .getElementById("modal_login")
     .addEventListener("submit", async (event) => {
@@ -184,4 +191,43 @@ async function interceptLoginModal() {
       document.body.appendChild(h_res);
       document.querySelector(".modal-create").remove();
     });
+}
+
+async function loadMessages() {
+  const res = await fetch("/messages");
+  const j_res = await res.json();
+
+  console.log(j_res);
+
+  div_messages.innerHTML = "";
+
+  const title_messages = document.createElement("h2");
+  title_messages.textContent = "False Social";
+  div_messages.appendChild(title_messages);
+
+  if (j_res.error) {
+    const error = document.createElement("p");
+    error.textContent = j_res.error;
+    div_messages.appendChild(error);
+    return;
+  }
+
+  for (let msg of j_res) {
+    const div_msg = document.createElement("div");
+
+    const author = document.createElement("h3");
+    author.textContent = msg.author;
+
+    const content = document.createElement("p");
+    content.textContent = msg.content;
+
+    const date = document.createElement("small");
+    date.textContent = msg.created_at;
+
+    div_msg.appendChild(author);
+    div_msg.appendChild(content);
+    div_msg.appendChild(date);
+
+    div_messages.appendChild(div_msg);
+  }
 }
