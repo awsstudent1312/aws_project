@@ -12,11 +12,6 @@ async function CreateUsers() {
     users.string("name", 255).primary();
     users.string("password", 255).notNullable();
   });
-  await testInsertion();
-}
-
-async function testInsertion() {
-  await knex("users").insert({ name: "test", password: "test" });
 }
 
 CreateUsers();
