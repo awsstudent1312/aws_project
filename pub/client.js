@@ -232,18 +232,23 @@ async function loadMessages() {
 
   for (let msg of j_res) {
     const div_msg = document.createElement("div");
-
+    div_msg.className = "item";
     const author = document.createElement("h3");
     author.textContent = msg.author;
 
-    const content = document.createElement("p");
-    content.textContent = msg.content;
+    const div_content = document.createElement("div");
+    div_content.className = "message_content";
+    msg.content.split("\n").forEach((line) => {
+      const content = document.createElement("p");
+      content.textContent = line;
+      div_content.appendChild(content);
+    });
 
     const date = document.createElement("small");
     date.textContent = msg.created_at;
 
     div_msg.appendChild(author);
-    div_msg.appendChild(content);
+    div_msg.appendChild(div_content);
     div_msg.appendChild(date);
 
     div_messages.appendChild(div_msg);
@@ -256,9 +261,10 @@ function create_message_form() {
   modal.action = "/post";
   modal.id = "modal_post";
 
-  const content = document.createElement("input");
-  content.type = "text";
+  const content = document.createElement("textarea");
   content.name = "content";
+  content.rows = 5;
+  content.cols = 30;
   modal.appendChild(content);
   const hidden_user = document.createElement("input");
   hidden_user.type = "hidden";

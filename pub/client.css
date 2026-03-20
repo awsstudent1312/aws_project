@@ -26,3 +26,28 @@ h1 {
     align-content: center;
     display: flex;
 }
+
+#div_messages .item {
+    padding-left: 5%;
+    padding-right: 5%;
+    border-top: 1px solid;
+    border-color: black;
+}
+
+#div_messages div h3 {
+    color: red;
+}
+
+#div_messages div .message_content {
+    padding-left: 5%;
+    border-style: solid;
+}
+
+#div_messages div div p{
+    margin-bottom: 0px;
+    margin-top: 0px;
+}
+
+#div_messages div small {
+    padding-left: 85%;
+}
