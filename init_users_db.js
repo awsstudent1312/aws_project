@@ -26,7 +26,6 @@ async function CreateUsers() {
 }
 
 async function testInsertion() {
-
   await knex("messages").insert([
     {
       author: "bo_gosse_anonyme_du_75",
@@ -35,7 +34,8 @@ async function testInsertion() {
     },
     {
       author: "bo_gosse_anonyme_du_ciel",
-      content: "hummm je sais pas trop il y a @bo_gosse_anonyme_de_mon_coeur qui veut que je l'aide pour un projet",
+      content:
+        "hummm je sais pas trop il y a @bo_gosse_anonyme_de_mon_coeur qui veut que je l'aide pour un projet",
       created_at: new Date("2026-03-17T10:05:23").toISOString(),
     },
     {

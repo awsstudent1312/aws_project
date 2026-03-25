@@ -10,9 +10,34 @@ const knex = require("knex")({
 });
 
 router.get("/", async function (req, res, next) {
+  const start = req.query.start; //date du dernier message
+  let size = req.query.size; //nombre de message demander
+  if (!size) {
+    size = "10";
+  }
   try {
-    const messages = await knex("messages").select("*").orderBy("created_at", "asc");
-    res.json(messages);
+    let messages;
+    if (start) {
+      messages = await knex("messages")
+        .select("*")
+        .where("created_at", "<", start)
+        .orderBy("created_at", "desc")
+        .limit(size);
+    } else {
+      messages = await knex("messages")
+        .select("*")
+        .orderBy("created_at", "desc")
+        .limit(size);
+    }
+    if (messages.length > 0) {
+      res.json({
+        messages: messages,
+        last: messages[messages.length - 1]["created_at"],
+      });
+    } else {
+      console.log("end of data");
+      res.json({ error: "Pas de nouvelle donnée" });
+    }
   } catch (err) {
     console.log(err);
     res.json({ error: err.code });

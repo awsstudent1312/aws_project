@@ -69,7 +69,7 @@ b_write_msg.addEventListener("click", () => {
   document.body.appendChild(div_modal);
 
   interceptMessageModal();
-})
+});
 
 //test
 const title = document.createElement("h1");
@@ -212,6 +212,7 @@ async function interceptLoginModal() {
 }
 
 async function loadMessages() {
+  sessionStorage.last = 0; //index dernier message recus
   const res = await fetch("/messages");
   const j_res = await res.json();
 
@@ -221,8 +222,8 @@ async function loadMessages() {
 
   const title_messages = document.createElement("h2");
   title_messages.textContent = "False Social";
-  const div_scroll = document.createElement('div');
-  div_scroll.className= "scroll";
+  const div_scroll = document.createElement("div");
+  div_scroll.className = "scroll";
   div_messages.appendChild(title_messages);
   div_messages.appendChild(div_scroll);
   if (j_res.error) {
@@ -231,8 +232,60 @@ async function loadMessages() {
     div_messages.appendChild(error);
     return;
   }
+  sessionStorage.last = j_res.last;
+  for (let msg of j_res.messages) {
+    const div_msg = document.createElement("div");
+    div_msg.className = "item";
+    const author = document.createElement("h3");
+    author.textContent = msg.author;
 
-  for (let msg of j_res) {
+    const div_content = document.createElement("div");
+    div_content.className = "message_content";
+    msg.content.split("\n").forEach((line) => {
+      const content = document.createElement("p");
+      content.textContent = line;
+      div_content.appendChild(content);
+    });
+
+    const date = document.createElement("small");
+    date.textContent = msg.created_at;
+
+    div_msg.appendChild(author);
+    div_msg.appendChild(div_content);
+    div_msg.appendChild(date);
+
+    div_scroll.appendChild(div_msg);
+  }
+  div_scroll.addEventListener("scroll", (event) =>
+    send_messages_atBotom(event),
+  );
+}
+
+async function send_messages_atBotom(event) {
+  const cursor_position = event.target.scrollTop;
+  const max_pos = event.target.scrollHeight;
+  const add_to_position = event.target.clientHeight;
+  if (cursor_position + add_to_position >= max_pos - 1) {
+    await next_messages();
+    setTimeout(500);
+  }
+}
+
+async function next_messages() {
+  const res = await fetch("/messages?size=10&start=" + sessionStorage.last);
+  const j_res = await res.json();
+  if (j_res.error) {
+    const error = document.createElement("p");
+    error.textContent = j_res.error;
+    div_messages.appendChild(error);
+    return;
+  }
+  if (sessionStorage.last == j_res.last) {
+    return;
+  }
+  sessionStorage.last = j_res.last;
+  const div_scroll = document.querySelector("#div_messages .scroll");
+  for (let msg of j_res.messages) {
     const div_msg = document.createElement("div");
     div_msg.className = "item";
     const author = document.createElement("h3");
@@ -288,7 +341,8 @@ function create_message_form() {
 }
 
 async function interceptMessageModal() {
-  document.getElementById("modal_post")
+  document
+    .getElementById("modal_post")
     .addEventListener("submit", async (event) => {
       event.preventDefault();
 
