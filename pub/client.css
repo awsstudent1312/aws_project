@@ -15,39 +15,45 @@ h1 {
 
 .modal-container {
     background-color: ghostwhite;
-    width: 80%;
-    height: 80%;
+    width: 80vh;
+    height: 80vh;
     position: fixed;
-    top: 10%;
-    bottom: 10%;
-    left: 10%;
-    right: 10%;
+    top: 10vh;
+    bottom: 10vh;
+    left: 10vh;
+    right: 10vh;
     align-items: center;
     align-content: center;
     display: flex;
 }
 
+.scroll {
+    overflow: scroll;
+    height: 80vh;
+    float: left;
+}
+
 #div_messages .item {
-    padding-left: 5%;
-    padding-right: 5%;
+    padding-left: 5vh;
+    padding-right: 5vh;
     border-top: 1px solid;
     border-color: black;
 }
 
-#div_messages div h3 {
+#div_messages .item h3 {
     color: red;
 }
 
-#div_messages div .message_content {
-    padding-left: 5%;
+#div_messages .item .message_content {
+    padding-left: 5vh;
     border-style: solid;
 }
 
-#div_messages div div p{
+#div_messages .item .message_content p{
     margin-bottom: 0px;
     margin-top: 0px;
 }
 
 #div_messages div small {
-    padding-left: 85%;
+    padding-left: 85vh;
 }

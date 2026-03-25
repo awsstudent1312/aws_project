@@ -221,8 +221,10 @@ async function loadMessages() {
 
   const title_messages = document.createElement("h2");
   title_messages.textContent = "False Social";
+  const div_scroll = document.createElement('div');
+  div_scroll.className= "scroll";
   div_messages.appendChild(title_messages);
-
+  div_messages.appendChild(div_scroll);
   if (j_res.error) {
     const error = document.createElement("p");
     error.textContent = j_res.error;
@@ -251,7 +253,7 @@ async function loadMessages() {
     div_msg.appendChild(div_content);
     div_msg.appendChild(date);
 
-    div_messages.appendChild(div_msg);
+    div_scroll.appendChild(div_msg);
   }
 }
 
