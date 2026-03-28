@@ -200,8 +200,7 @@ async function interceptLoginModal() {
 
       if (!j_res.error) {
         h_res.textContent = j_res.msg;
-        localStorage.setItem("user", j_res.user);
-        localStorage.setItem("password", j_res.password);
+        localStorage.setItem("sessionId", j_res.sessionId);
       } else {
         h_res.textContent = "error:\t" + j_res.error;
       }
@@ -321,17 +320,12 @@ function create_message_form() {
   content.rows = 5;
   content.cols = 30;
   modal.appendChild(content);
-  const hidden_user = document.createElement("input");
-  hidden_user.type = "hidden";
-  hidden_user.hidden = "";
-  hidden_user.name = "user";
-  hidden_user.value = localStorage.getItem("user");
-  modal.appendChild(hidden_user);
-  const hidden_password = document.createElement("input");
-  hidden_password.type = "hidden";
-  hidden_password.name = "password";
-  hidden_password.value = localStorage.getItem("password");
-  modal.appendChild(hidden_password);
+  const hidden_session = document.createElement("input");
+  hidden_session.type = "hidden";
+  hidden_session.hidden = "";
+  hidden_session.name = "sessionId";
+  hidden_session.value = localStorage.getItem("sessionId");
+  modal.appendChild(hidden_session);
   const submit = document.createElement("input");
   submit.type = "submit";
   submit.value = "send";

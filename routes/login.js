@@ -34,16 +34,27 @@ router.post("/", async function (req, res, next) {
       res.json({ error: "invalid username or password" });
       return;
     }
-
+    const sessionId = await session_id_in_bd(body.user);
     res.json({
       msg: "login success",
-      user: user.name,
-      password: body.pass,
+      sessionId: sessionId,
     });
   } catch (err) {
     console.log(err);
     res.json({ error: "server error" });
   }
 });
-
+async function session_id_in_bd(username) {
+  const sessionId = crypto.randomUUID();
+  try {
+    await knex("sessions").insert({
+      user_name: username,
+      sessionId: sessionId,
+      expire_at: new Date(Date.now() + 3600000).toISOString(),
+    });
+  } catch (err) {
+    return await session_id_in_bd(username);
+  }
+  return sessionId;
+}
 module.exports = router;

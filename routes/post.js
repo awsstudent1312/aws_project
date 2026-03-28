@@ -13,33 +13,30 @@ const knex = require("knex")({
 
 router.post("/", async (req, res, next) => {
   const body = req.body;
-  if (!body.password || !body.user) {
+  if (!body.sessionId) {
     res.json({ error: "you need to be logged to send messages" });
     return;
   }
-  const user = await knex("users")
-    .select("password")
-    .where({ name: body.user })
+  const user = await knex("sessions")
+    .select("user_name")
+    .where({ sessionId: body.sessionId })
+    .andWhere("expire_at", ">", new Date().toISOString())
     .first();
   if (!user) {
-    res.json({error: "invalide username or password"});
+    res.json({ error: "session expired" });
     return;
   }
   console.log(body);
-  if (!bcrypt.compareSync(body.password, user.password)) {
-    res.json({ error: "invalide credentials" });
-  } else {
-    try {
-      await knex("messages").insert({
-        author: body.user,
-        content: body.content,
-        created_at: new Date().toISOString(),
-      });
-    } catch (error) {
-      res.json({ error: "messages non accepter" });
-      return;
-    } finally {
-    }
+  try {
+    await knex("messages").insert({
+      author: user.user_name,
+      content: body.content,
+      created_at: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.json({ error: "messages non accepter" });
+    return;
+  } finally {
     res.json({ msg: "message sent" });
     return;
   }

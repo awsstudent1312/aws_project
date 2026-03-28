@@ -8,6 +8,7 @@ const knex = require("knex")({
 
 async function CreateUsers() {
   await knex.raw("drop table if exists messages");
+  await knex.raw("drop table if exists sessions");
   await knex.raw("drop table if exists users");
 
   await knex.schema.createTable("users", (users) => {
@@ -20,6 +21,13 @@ async function CreateUsers() {
     messages.string("author", 255).notNullable();
     messages.text("content").notNullable();
     messages.datetime("created_at").notNullable();
+  });
+
+  await knex.schema.createTable("sessions", (sessions) => {
+    sessions.bigInteger("sessionId").primary();
+    sessions.string("user_name").notNullable();
+    sessions.datetime("expire_at").notNullable();
+    sessions.foreign("user_name").references("name").inTable("users");
   });
 
   await testInsertion();
