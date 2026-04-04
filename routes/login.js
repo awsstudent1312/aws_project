@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
-
+const crypto = require("crypto");
 const bcrypt = require("bcrypt");
+const { type } = require("os");
 
 const knex = require("knex")({
   client: "sqlite3",
@@ -44,8 +45,10 @@ router.post("/", async function (req, res, next) {
     res.json({ error: "server error" });
   }
 });
+
 async function session_id_in_bd(username) {
   const sessionId = crypto.randomUUID();
+  console.log(type(sessionId));
   try {
     await knex("sessions").insert({
       user_name: username,

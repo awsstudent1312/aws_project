@@ -8,6 +8,9 @@ b_create_account.textContent = "create account";
 // nouveau message
 const b_write_msg = document.createElement("button");
 b_write_msg.textContent = "new message";
+// deconnection
+const b_logout = document.createElement("button");
+b_logout.textContent = "logout";
 
 //container des messages
 const div_messages = document.createElement("div");
@@ -18,11 +21,13 @@ div_messages.id = "div_messages";
 div_choice.appendChild(b_login);
 div_choice.appendChild(b_create_account);
 div_choice.appendChild(b_write_msg);
+div_choice.appendChild(b_logout);
 
 //ajout de la div a la page
 document.body.appendChild(div_choice);
 document.body.appendChild(div_messages);
 loadMessages();
+updateUI();
 
 //gestion du bouton de creation de compte
 b_create_account.addEventListener("click", () => {
@@ -56,6 +61,12 @@ b_login.addEventListener("click", () => {
 
 //gestion de l'ajout de message
 b_write_msg.addEventListener("click", () => {
+  if (!isLoggedIn()) {
+    const h_res = document.createElement("h1");
+    h_res.textContent = "error:\tyou need to login first";
+    document.body.appendChild(h_res);
+    return;
+  }
   const div_modal = document.createElement("div");
   div_modal.className = "modal-create";
 
@@ -71,10 +82,62 @@ b_write_msg.addEventListener("click", () => {
   interceptMessageModal();
 });
 
+//gestion de la déconnection
+b_logout.addEventListener("click", logoutUser);
+
 //test
 const title = document.createElement("h1");
 title.innerHTML = "hello in my app";
 document.body.appendChild(title);
+
+function isLoggedIn() {
+  return !!localStorage.getItem("sessionId");
+}
+
+function updateUI() {
+  const logged = isLoggedIn();
+
+  b_login.style.display = logged ? "none" : "inline-block";
+  b_create_account.style.display = logged ? "none" : "inline-block";
+  b_write_msg.style.display = logged ? "inline-block" : "none";
+  b_logout.style.display = logged ? "inline-block" : "none";
+}
+
+async function logoutUser() {
+  const sessionId = localStorage.getItem("sessionId");
+
+  if (!sessionId) {
+    updateUI();
+    return;
+  }
+
+  try {
+    const res = await fetch("/logout", {
+      method: "POST",
+      body: JSON.stringify({ sessionId }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const j_res = await res.json();
+
+    const h_res = document.createElement("h1");
+
+    if (!j_res.error) {
+      localStorage.removeItem("sessionId");
+      h_res.textContent = j_res.msg;
+    } else {
+      h_res.textContent = "error:\t" + j_res.error;
+    }
+
+    document.body.appendChild(h_res);
+  } catch (err) {
+    const h_res = document.createElement("h1");
+    h_res.textContent = "error:\tserver unreachable";
+    document.body.appendChild(h_res);
+  }
+
+  updateUI();
+}
 
 function create_signin_form() {
   const modal = document.createElement("form");
@@ -201,6 +264,7 @@ async function interceptLoginModal() {
       if (!j_res.error) {
         h_res.textContent = j_res.msg;
         localStorage.setItem("sessionId", j_res.sessionId);
+        updateUI();
       } else {
         h_res.textContent = "error:\t" + j_res.error;
       }
