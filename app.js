@@ -29,17 +29,10 @@ app.use("/messages", messagesRouter);
 app.use("/post", postRouter);
 app.use("/logout", logoutRouter);
 
-<<<<<<< HEAD
 const options = {
   key: process.env.PKEY,
   cert: process.env.CERT,
 };
-=======
-//const options = {
-//  key: fs.readFileSync("./keys/key.pem"),
-//  cert: fs.readFileSync("./keys/cert.pem"),
-//};
->>>>>>> refs/remotes/origin/main
 
 //https.createServer(options, app).listen(3443, () => {
 //  console.log("you used htpps XD!!");
