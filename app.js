@@ -19,10 +19,10 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 
-app.use("/pub", express.static(__dirname + "/pub"));
+app.use(express.static("public"));
 
 app.engine("html", consolidate.nunjucks);
-app.set("view engine", "nunjucks");
+app.set("view engine", "html");
 
 app.use("/", indexRouter);
 app.use("/login", loginRouter);
