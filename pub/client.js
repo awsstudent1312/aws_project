@@ -1,4 +1,5 @@
 const div_choice = document.createElement("div"); //contienr les vues
+div_choice.id = "topbar";
 //connecter
 const b_login = document.createElement("button");
 b_login.textContent = "login";
@@ -16,15 +17,30 @@ b_logout.textContent = "logout";
 const div_messages = document.createElement("div");
 div_messages.id = "div_messages";
 
-//ajout à la div menu
+const title = document.createElement("div");
+title.textContent = "False Social";
+title.className = "topbar-title";
+//Titre 
 
-div_choice.appendChild(b_login);
-div_choice.appendChild(b_create_account);
-div_choice.appendChild(b_write_msg);
-div_choice.appendChild(b_logout);
+const right = document.createElement("div");
+right.className = "topbar-right";
+
+right.appendChild(b_login);
+right.appendChild(b_create_account);
+right.appendChild(b_write_msg);
+right.appendChild(b_logout);
+
+//ajout à la div menu
+div_choice.appendChild(title);
+div_choice.appendChild(right);
+
+const notificationContainer = document.createElement("div");
+notificationContainer.id = "notification-container";
+
 
 //ajout de la div a la page
 document.body.appendChild(div_choice);
+document.body.appendChild(notificationContainer);
 document.body.appendChild(div_messages);
 loadMessages();
 updateUI();
@@ -59,12 +75,35 @@ b_login.addEventListener("click", () => {
   interceptLoginModal();
 });
 
+function showNotification(message, type = "info") {
+  const notif = document.createElement("div");
+  notif.className = `notification notification-${type}`;
+  notif.textContent = message;
+
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "notification-close";
+  closeBtn.textContent = "×";
+  closeBtn.addEventListener("click", () => {
+    notif.remove();
+  });
+
+  notif.appendChild(closeBtn);
+  notificationContainer.appendChild(notif);
+
+  setTimeout(() => {
+    notif.classList.add("show");
+  }, 10);
+
+  setTimeout(() => {
+    notif.classList.remove("show");
+    setTimeout(() => notif.remove(), 300);
+  }, 3000);
+}
+
 //gestion de l'ajout de message
 b_write_msg.addEventListener("click", () => {
   if (!isLoggedIn()) {
-    const h_res = document.createElement("h1");
-    h_res.textContent = "error:\tyou need to login first";
-    document.body.appendChild(h_res);
+    showNotification("error:\tyou need to login first");
     return;
   }
   const div_modal = document.createElement("div");
@@ -84,11 +123,6 @@ b_write_msg.addEventListener("click", () => {
 
 //gestion de la déconnection
 b_logout.addEventListener("click", logoutUser);
-
-//test
-const title = document.createElement("h1");
-title.innerHTML = "hello in my app";
-document.body.appendChild(title);
 
 function isLoggedIn() {
   return !!localStorage.getItem("sessionId");
@@ -120,20 +154,14 @@ async function logoutUser() {
 
     const j_res = await res.json();
 
-    const h_res = document.createElement("h1");
-
     if (!j_res.error) {
       localStorage.removeItem("sessionId");
-      h_res.textContent = j_res.msg;
+      showNotification(j_res.msg, "success");
     } else {
-      h_res.textContent = "error:\t" + j_res.error;
+      showNotification(j_res.error, "error");
     }
-
-    document.body.appendChild(h_res);
   } catch (err) {
-    const h_res = document.createElement("h1");
-    h_res.textContent = "error:\tserver unreachable";
-    document.body.appendChild(h_res);
+    showNotification("server unreachable", "error");
   }
 
   updateUI();
@@ -194,13 +222,11 @@ async function interceptSigninModal() {
       console.log(res);
       const j_res = await res.json();
       console.log(j_res);
-      const h_res = document.createElement("h1");
       if (!j_res.error) {
-        h_res.textContent = j_res.msg;
+        showNotification(j_res.msg, "success");
       } else {
-        h_res.textContent = "error:\t" + j_res.error;
+        showNotification(j_res.error, "error");
       }
-      document.body.appendChild(h_res);
       document.querySelector(".modal-create").remove();
     });
 }
@@ -259,19 +285,40 @@ async function interceptLoginModal() {
       const j_res = await res.json();
       console.log(j_res);
 
-      const h_res = document.createElement("h1");
-
       if (!j_res.error) {
-        h_res.textContent = j_res.msg;
+        showNotification(j_res.msg, "success");
         localStorage.setItem("sessionId", j_res.sessionId);
         updateUI();
       } else {
-        h_res.textContent = "error:\t" + j_res.error;
+        showNotification(j_res.error, "error");
       }
 
-      document.body.appendChild(h_res);
       document.querySelector(".modal-create").remove();
     });
+}
+
+function formatRelativeDate(dateString) {
+  const now = new Date();
+  const date = new Date(dateString);
+
+  const diff = Math.floor((now - date) / 1000); // en secondes
+
+  if (diff < 60) return "à l'instant";
+
+  const minutes = Math.floor(diff / 60);
+  if (minutes < 60) return `il y a ${minutes} min`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `il y a ${hours} h`;
+
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `il y a ${days} j`;
+
+  // fallback date classique
+  return date.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "short",
+  });
 }
 
 async function loadMessages() {
@@ -284,7 +331,7 @@ async function loadMessages() {
   div_messages.innerHTML = "";
 
   const title_messages = document.createElement("h2");
-  title_messages.textContent = "False Social";
+  title_messages.textContent = "News feed";
   const div_scroll = document.createElement("div");
   div_scroll.className = "scroll";
   div_messages.appendChild(title_messages);
@@ -299,8 +346,23 @@ async function loadMessages() {
   for (let msg of j_res.messages) {
     const div_msg = document.createElement("div");
     div_msg.className = "item";
+
+
+    // conteneur header (avatar + pseudo)
+    const header = document.createElement("div");
+    header.className = "message_header";
+
+    // avatar
+    const avatar = document.createElement("img");
+    avatar.className = "avatar";
+    avatar.src = "/pub/avatar.svg";
+
+
     const author = document.createElement("h3");
     author.textContent = msg.author;
+
+    header.appendChild(avatar);
+    header.appendChild(author);
 
     const div_content = document.createElement("div");
     div_content.className = "message_content";
@@ -311,9 +373,9 @@ async function loadMessages() {
     });
 
     const date = document.createElement("small");
-    date.textContent = msg.created_at;
+    date.textContent = formatRelativeDate(msg.created_at);
 
-    div_msg.appendChild(author);
+    div_msg.appendChild(header);
     div_msg.appendChild(div_content);
     div_msg.appendChild(date);
 
@@ -351,8 +413,21 @@ async function next_messages() {
   for (let msg of j_res.messages) {
     const div_msg = document.createElement("div");
     div_msg.className = "item";
+
+    // conteneur header (avatar + pseudo)
+    const header = document.createElement("div");
+    header.className = "message_header";
+
+    // avatar
+    const avatar = document.createElement("img");
+    avatar.className = "avatar";
+    avatar.src = "/pub/avatar.svg";
+
     const author = document.createElement("h3");
     author.textContent = msg.author;
+
+    header.appendChild(avatar);
+    header.appendChild(author);
 
     const div_content = document.createElement("div");
     div_content.className = "message_content";
@@ -363,9 +438,9 @@ async function next_messages() {
     });
 
     const date = document.createElement("small");
-    date.textContent = msg.created_at;
+    date.textContent = formatRelativeDate(msg.created_at);
 
-    div_msg.appendChild(author);
+    div_msg.appendChild(header);
     div_msg.appendChild(div_content);
     div_msg.appendChild(date);
 
@@ -416,13 +491,11 @@ async function interceptMessageModal() {
       console.log(res);
       const j_res = await res.json();
       console.log(j_res);
-      const h_res = document.createElement("h1");
       if (!j_res.error) {
-        h_res.textContent = j_res.msg;
+        showNotification(j_res.msg, "success");
       } else {
-        h_res.textContent = "error:\t" + j_res.error;
+        showNotification(j_res.error, "error");
       }
-      document.body.appendChild(h_res);
       document.querySelector(".modal-create").remove();
     });
 }
