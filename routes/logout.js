@@ -1,13 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const knex = require("knex")({
-  client: "sqlite3",
-  connection: {
-    filename: "./db.sqlite3",
-  },
-  debug: true,
-});
+const { knex, executeQuery } = require("./lib/db");
 
 router.post("/", async (req, res) => {
   const { sessionId } = req.body;
@@ -18,7 +12,9 @@ router.post("/", async (req, res) => {
   }
 
   try {
-    const deleted = await knex("sessions").where({ sessionId }).del();
+    const deleted = await executeQuery(
+      knex("sessions").where({ sessionId }).del(),
+    );
 
     if (deleted === 0) {
       res.status(401).json({ error: "invalid session" });

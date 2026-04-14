@@ -1,13 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
-const knex = require("knex")({
-  client: "sqlite3",
-  connection: {
-    filename: "./db.sqlite3",
-  },
-  debug: true,
-});
+const { knex, executeQuery } = require("./lib/db");
 
 router.get("/", async function (req, res, next) {
   const start = req.query.start; //date du dernier message
@@ -18,16 +11,17 @@ router.get("/", async function (req, res, next) {
   try {
     let messages;
     if (start) {
-      messages = await knex("messages")
-        .select("*")
-        .where("created_at", "<", start)
-        .orderBy("created_at", "desc")
-        .limit(size);
+      messages = await executeQuery(
+        knex("messages")
+          .select("*")
+          .where("created_at", "<", start)
+          .orderBy("created_at", "desc")
+          .limit(size),
+      );
     } else {
-      messages = await knex("messages")
-        .select("*")
-        .orderBy("created_at", "desc")
-        .limit(size);
+      messages = await executeQuery(
+        knex("messages").select("*").orderBy("created_at", "desc").limit(size),
+      );
     }
     if (messages.length > 0) {
       res.json({

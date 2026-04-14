@@ -4,13 +4,7 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const { type } = require("os");
 
-const knex = require("knex")({
-  client: "sqlite3",
-  connection: {
-    filename: "./db.sqlite3",
-  },
-  debug: true,
-});
+const { knex, executeQuery } = require("./lib/db");
 
 router.post("/", async function (req, res, next) {
   const body = req.body;
@@ -50,11 +44,13 @@ async function session_id_in_bd(username) {
   const sessionId = crypto.randomUUID();
   console.log(type(sessionId));
   try {
-    await knex("sessions").insert({
-      user_name: username,
-      sessionId: sessionId,
-      expire_at: new Date(Date.now() + 3600000).toISOString(),
-    });
+    await executeQuery(
+      knex("sessions").insert({
+        user_name: username,
+        sessionId: sessionId,
+        expire_at: new Date(Date.now() + 3600000).toISOString(),
+      }),
+    );
   } catch (err) {
     return await session_id_in_bd(username);
   }
