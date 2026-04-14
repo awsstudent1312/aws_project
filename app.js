@@ -1,7 +1,6 @@
 const express = require("express");
 
 const https = require("https");
-const fs = require("fs");
 
 const bodyParser = require("body-parser");
 const consolidate = require("consolidate");
@@ -39,4 +38,4 @@ https.createServer(options, app).listen(3443, () => {
   console.log("you used htpps XD!!");
 });
 
-// app.listen(3000);
+app.listen(3000);
