@@ -31,8 +31,8 @@ app.use("/post", postRouter);
 app.use("/logout", logoutRouter);
 
 const options = {
-  key: fs.readFileSync("./keys/key.pem"),
-  cert: fs.readFileSync("./keys/cert.pem"),
+  key: process.env.PKEY,
+  cert: process.env.CERT,
 };
 
 https.createServer(options, app).listen(3443, () => {
