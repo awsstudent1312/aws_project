@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 
 const https = require("https");
@@ -34,8 +36,8 @@ const options = {
   cert: process.env.CERT,
 };
 
-//https.createServer(options, app).listen(3443, () => {
-//  console.log("you used htpps XD!!");
-//});
+https.createServer(options, app).listen(3443, () => {
+  console.log("you used htpps XD!!");
+});
 
 app.listen(3000);
