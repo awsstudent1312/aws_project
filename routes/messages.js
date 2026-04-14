@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { knex, executeQuery } = require("/lib/db");
+const { knex, executeQuery } = require("../lib/db");
 
 router.get("/", async function (req, res, next) {
   const start = req.query.start; //date du dernier message

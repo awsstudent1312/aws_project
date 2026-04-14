@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { knex, executeQuery } = require("/lib/db");
+const { knex, executeQuery } = require("../lib/db");
 
 router.post("/", async (req, res) => {
   const { sessionId } = req.body;
