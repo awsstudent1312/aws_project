@@ -31,13 +31,17 @@ app.use("/messages", messagesRouter);
 app.use("/post", postRouter);
 app.use("/logout", logoutRouter);
 
-const options = {
-  key: process.env.PKEY,
-  cert: process.env.CERT,
-};
+// const options = {
+//   key: process.env.PKEY,
+//   cert: process.env.CERT,
+// };
 
-https.createServer(options, app).listen(3443, () => {
-  console.log("you used htpps XD!!");
+// https.createServer(options, app).listen(3443, () => {
+//   console.log("you used htpps XD!!");
+// });
+
+// app.listen(3000);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
-
-app.listen(3000);
