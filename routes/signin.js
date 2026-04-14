@@ -4,7 +4,7 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const keyround = 10;
 
-const { knex, executeQuery } = require("./lib/db");
+const { knex, executeQuery } = require("/lib/db");
 
 router.post("/", async (req, res, next) => {
   const body = req.body;

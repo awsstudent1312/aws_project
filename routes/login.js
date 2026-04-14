@@ -4,7 +4,7 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const { type } = require("os");
 
-const { knex, executeQuery } = require("./lib/db");
+const { knex, executeQuery } = require("/lib/db");
 
 router.post("/", async function (req, res, next) {
   const body = req.body;
