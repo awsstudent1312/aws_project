@@ -11,7 +11,6 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "build": "node init_users_db.js",
     "test": "nodemon app.js",
     "start": "node app.js"
   },
