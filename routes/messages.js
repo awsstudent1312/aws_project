@@ -36,6 +36,7 @@ router.get("/", async function (req, res, next) {
       });
     } else {
       console.log("end of data");
+      showNotification("Pas de nouvelle donnée", "error");
       res.json({ error: "Pas de nouvelle donnée" });
     }
   } catch (err) {

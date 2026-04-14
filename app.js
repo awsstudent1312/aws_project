@@ -30,13 +30,13 @@ app.use("/messages", messagesRouter);
 app.use("/post", postRouter);
 app.use("/logout", logoutRouter);
 
-const options = {
-  key: fs.readFileSync("./keys/key.pem"),
-  cert: fs.readFileSync("./keys/cert.pem"),
-};
+//const options = {
+//  key: fs.readFileSync("./keys/key.pem"),
+//  cert: fs.readFileSync("./keys/cert.pem"),
+//};
 
-https.createServer(options, app).listen(3443, () => {
-  console.log("you used htpps XD!!");
-});
+//https.createServer(options, app).listen(3443, () => {
+//  console.log("you used htpps XD!!");
+//});
 
-// app.listen(3000);
+app.listen(3000);
