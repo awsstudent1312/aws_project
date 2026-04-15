@@ -353,7 +353,7 @@ async function loadMessages() {
     // avatar
     const avatar = document.createElement("img");
     avatar.className = "avatar";
-    avatar.src = "avatar.svg";
+    avatar.src = "/avatar.svg";
 
     const author = document.createElement("h3");
     author.textContent = msg.author;
@@ -418,7 +418,7 @@ async function next_messages() {
     // avatar
     const avatar = document.createElement("img");
     avatar.className = "avatar";
-    avatar.src = "avatar.svg";
+    avatar.src = "/avatar.svg";
 
     const author = document.createElement("h3");
     author.textContent = msg.author;
