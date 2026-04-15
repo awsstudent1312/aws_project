@@ -47,6 +47,14 @@ document.body.appendChild(div_messages);
 loadMessages();
 updateUI();
 
+function enableModalCloseOnOutsideClick(modalOverlay) {
+  modalOverlay.addEventListener("click", (event) => {
+    if (event.target === modalOverlay) {
+      modalOverlay.remove();
+    }
+  });
+}
+
 //gestion du bouton de creation de compte
 b_create_account.addEventListener("click", () => {
   const div_modal = document.createElement("div");
@@ -58,6 +66,7 @@ b_create_account.addEventListener("click", () => {
   div_modal.appendChild(div_container);
   document.body.appendChild(div_modal);
   //intercept submit
+  enableModalCloseOnOutsideClick(div_modal);
   interceptSigninModal();
 });
 
@@ -74,8 +83,10 @@ b_login.addEventListener("click", () => {
   div_modal.appendChild(div_container);
   document.body.appendChild(div_modal);
 
+  enableModalCloseOnOutsideClick(div_modal);
   interceptLoginModal();
 });
+
 
 function showNotification(message, type = "info") {
   const notif = document.createElement("div");
@@ -120,6 +131,7 @@ b_write_msg.addEventListener("click", () => {
   div_modal.appendChild(div_container);
   document.body.appendChild(div_modal);
 
+  enableModalCloseOnOutsideClick(div_modal);
   interceptMessageModal();
 });
 

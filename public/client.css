@@ -24,6 +24,12 @@ textarea {
   border: 1px solid red !important;
 } */
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /* =========================================================
    2) BASE PAGE
    - réglages généraux de la page
@@ -333,7 +339,7 @@ h3 {
   width: min(92vw, 540px);
   max-height: 90vh;
   overflow-y: auto;
-  background: #000;
+  background: #1a1a1a;
   border: 1px solid #2f3336 !important;
   border-radius: 18px;
   padding: 24px;

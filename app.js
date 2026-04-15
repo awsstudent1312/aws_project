@@ -6,6 +6,7 @@ const https = require("https");
 
 const bodyParser = require("body-parser");
 const consolidate = require("consolidate");
+const { rateLimit } = require("express-rate-limit");
 
 const indexRouter = require("./routes/index");
 const loginRouter = require("./routes/login");
@@ -16,6 +17,8 @@ const logoutRouter = require("./routes/logout");
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 
@@ -24,11 +27,36 @@ app.use(express.static("public"));
 app.engine("html", consolidate.nunjucks);
 app.set("view engine", "html");
 
+
+const loginLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  limit: 5,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: { error: "too many attempts, try again later" },
+});
+
+const signinLimiter = rateLimit({
+  windowMs: 2 * 60 * 1000,
+  limit: 5,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: { error: "too many attempts, try again later" },
+});
+
+const postLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  limit: 5, // 5 messages max par minute
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: { error: "too many messages, slow down a bit" },
+});
+
 app.use("/", indexRouter);
-app.use("/login", loginRouter);
-app.use("/signin", signinRouter);
+app.use("/login", loginLimiter, loginRouter);
+app.use("/signin", signinLimiter, signinRouter);
 app.use("/messages", messagesRouter);
-app.use("/post", postRouter);
+app.use("/post", postLimiter, postRouter);
 app.use("/logout", logoutRouter);
 
 // const options = {

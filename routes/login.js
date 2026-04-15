@@ -2,48 +2,83 @@ const express = require("express");
 const router = express.Router();
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
-const { type } = require("os");
 
 const { knex, executeQuery } = require("../lib/db");
 
-router.post("/", async function (req, res, next) {
-  const body = req.body;
-  console.log(body);
+const USERNAME_MIN_LENGTH = 3;
+const USERNAME_MAX_LENGTH = 32;
+const PASSWORD_MIN_LENGTH = 8;
 
-  if (body.user == "" || body.pass == "") {
-    res.json({ error: "you need to complete all input" });
-    return;
+function isValidUsername(username) {
+  return /^[a-zA-Z0-9_.-]+$/.test(username);
+}
+
+router.post("/", async (req, res) => {
+  const rawUser = req.body.user ?? "";
+  const rawPass = req.body.pass ?? "";
+
+  const user = rawUser.trim();
+  const pass = String(rawPass);
+
+  if (!user || !pass) {
+    return res.status(400).json({
+      error: "you need to complete all input",
+    });
+  }
+
+  if (user.length < USERNAME_MIN_LENGTH || user.length > USERNAME_MAX_LENGTH) {
+    return res.status(400).json({
+      error: "invalid username or password",
+    });
+  }
+
+  if (!isValidUsername(user)) {
+    return res.status(400).json({
+      error: "invalid username or password",
+    });
+  }
+
+  if (pass.length < PASSWORD_MIN_LENGTH) {
+    return res.status(400).json({
+      error: "invalid username or password",
+    });
   }
 
   try {
-    const user = await executeQuery(
-      knex("users").where({ name: body.user }).first(),
+    const userQuery = await executeQuery(
+      knex("users").where({ name: user }).first(),
     );
 
-    if (!user) {
-      res.json({ error: "invalid username or password" });
-      return;
+    if (!userQuery || !userQuery.rows || userQuery.rows.length === 0) {
+      return res.status(401).json({
+        error: "invalid username or password",
+      });
     }
-    const ok = await bcrypt.compare(body.pass, user.rows[0].password);
+
+    const dbUser = userQuery.rows[0];
+    const ok = await bcrypt.compare(pass, dbUser.password);
 
     if (!ok) {
-      res.json({ error: "invalid username or password" });
-      return;
+      return res.status(401).json({
+        error: "invalid username or password",
+      });
     }
-    const sessionId = await session_id_in_bd(body.user);
-    res.json({
+
+    const sessionId = await session_id_in_bd(user);
+
+    return res.json({
       msg: "login success",
       sessionId: sessionId,
     });
   } catch (err) {
     console.log(err);
-    res.json({ error: "server error" });
+    return res.status(500).json({ error: "server error" });
   }
 });
 
 async function session_id_in_bd(username) {
   const sessionId = crypto.randomUUID();
-  console.log(type(sessionId));
+
   try {
     await executeQuery(
       knex("sessions").insert({
@@ -55,6 +90,8 @@ async function session_id_in_bd(username) {
   } catch (err) {
     return await session_id_in_bd(username);
   }
+
   return sessionId;
 }
+
 module.exports = router;
