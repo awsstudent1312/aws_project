@@ -20,7 +20,7 @@ div_messages.id = "div_messages";
 const title = document.createElement("div");
 title.textContent = "False Social";
 title.className = "topbar-title";
-//Titre 
+//Titre
 
 const right = document.createElement("div");
 right.className = "topbar-right";
@@ -36,7 +36,6 @@ div_choice.appendChild(right);
 
 const notificationContainer = document.createElement("div");
 notificationContainer.id = "notification-container";
-
 
 //ajout de la div a la page
 document.body.appendChild(div_choice);
@@ -347,7 +346,6 @@ async function loadMessages() {
     const div_msg = document.createElement("div");
     div_msg.className = "item";
 
-
     // conteneur header (avatar + pseudo)
     const header = document.createElement("div");
     header.className = "message_header";
@@ -355,8 +353,7 @@ async function loadMessages() {
     // avatar
     const avatar = document.createElement("img");
     avatar.className = "avatar";
-    avatar.src = "/pub/avatar.svg";
-
+    avatar.src = "avatar.svg";
 
     const author = document.createElement("h3");
     author.textContent = msg.author;
@@ -421,7 +418,7 @@ async function next_messages() {
     // avatar
     const avatar = document.createElement("img");
     avatar.className = "avatar";
-    avatar.src = "/pub/avatar.svg";
+    avatar.src = "avatar.svg";
 
     const author = document.createElement("h3");
     author.textContent = msg.author;
