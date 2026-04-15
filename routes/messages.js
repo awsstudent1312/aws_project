@@ -23,6 +23,7 @@ router.get("/", async function (req, res, next) {
         knex("messages").select("*").orderBy("created_at", "desc").limit(size),
       );
     }
+    messages = messages.rows;
     if (messages.length > 0) {
       res.json({
         messages: messages,

@@ -26,7 +26,7 @@ router.post("/", async (req, res, next) => {
   try {
     await executeQuery(
       knex("messages").insert({
-        author: user.user_name,
+        author: user.rows[0].user_name,
         content: body.content,
         created_at: new Date().toISOString(),
       }),

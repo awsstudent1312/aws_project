@@ -16,14 +16,15 @@ router.post("/", async function (req, res, next) {
   }
 
   try {
-    const user = await knex("users").where({ name: body.user }).first();
+    const user = await executeQuery(
+      knex("users").where({ name: body.user }).first(),
+    );
 
     if (!user) {
       res.json({ error: "invalid username or password" });
       return;
     }
-
-    const ok = await bcrypt.compare(body.pass, user.password);
+    const ok = await bcrypt.compare(body.pass, user.rows[0].password);
 
     if (!ok) {
       res.json({ error: "invalid username or password" });

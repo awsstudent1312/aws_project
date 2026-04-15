@@ -1,3 +1,4 @@
+const { Knex } = require("knex");
 const { knex, executeQuery } = require("./lib/db");
 
 async function CreateUsers() {
@@ -31,6 +32,8 @@ async function CreateUsers() {
   await executeQuery(query);
 
   await testInsertion();
+  await testSelect();
+  process.exit(0);
 }
 
 async function testInsertion() {
@@ -62,10 +65,23 @@ async function testInsertion() {
   // await executeQuery(query);
 
   console.log("database created with test data");
+  // process.exit(0);
+}
+
+async function testSelect() {
+  let rep = await executeQuery(knex("messages").select("*"));
+  console.log(rep);
+  rep = await executeQuery(knex("users").select("*"));
+  console.log(rep);
   process.exit(0);
 }
 
-CreateUsers().catch((err) => {
+testSelect().catch((err) => {
   console.error(err);
   process.exit(1);
 });
+
+// CreateUsers().catch((err) => {
+//   console.error(err);
+//   process.exit(1);
+// });
