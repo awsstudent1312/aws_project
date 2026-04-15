@@ -1,3 +1,6 @@
+const MAX_MESSAGE_LENGTH = 280;
+//limite de caracterec des messages
+
 const div_choice = document.createElement("div"); //contienr les vues
 div_choice.id = "topbar";
 //connecter
@@ -330,15 +333,13 @@ async function loadMessages() {
   div_messages.innerHTML = "";
 
   const title_messages = document.createElement("h2");
-  title_messages.textContent = "News feed";
+  title_messages.textContent = "Messages récents";
   const div_scroll = document.createElement("div");
   div_scroll.className = "scroll";
   div_messages.appendChild(title_messages);
   div_messages.appendChild(div_scroll);
   if (j_res.error) {
-    const error = document.createElement("p");
-    error.textContent = j_res.error;
-    div_messages.appendChild(error);
+    showNotification(j_res.error, "error");
     return;
   }
   sessionStorage.last = j_res.last;
@@ -397,9 +398,7 @@ async function next_messages() {
   const res = await fetch("/messages?size=10&start=" + sessionStorage.last);
   const j_res = await res.json();
   if (j_res.error) {
-    const error = document.createElement("p");
-    error.textContent = j_res.error;
-    div_messages.appendChild(error);
+    showNotification(j_res.error, "info");
     return;
   }
   if (sessionStorage.last == j_res.last) {
@@ -455,13 +454,26 @@ function create_message_form() {
   content.name = "content";
   content.rows = 5;
   content.cols = 30;
+  content.maxLength = MAX_MESSAGE_LENGTH;
+  content.placeholder = "Quoi de neuf?";
   modal.appendChild(content);
+
+  const counter = document.createElement("div");
+  counter.id = "message-counter";
+  counter.textContent = `0 / ${MAX_MESSAGE_LENGTH}`;
+  modal.appendChild(counter);
+
+  content.addEventListener("input", () => {
+    counter.textContent = `${content.value.length} / ${MAX_MESSAGE_LENGTH}`;
+  });
+
   const hidden_session = document.createElement("input");
   hidden_session.type = "hidden";
-  hidden_session.hidden = "";
+  hidden_session.hidden = true;
   hidden_session.name = "sessionId";
   hidden_session.value = localStorage.getItem("sessionId");
   modal.appendChild(hidden_session);
+
   const submit = document.createElement("input");
   submit.type = "submit";
   submit.value = "send";
@@ -478,21 +490,43 @@ async function interceptMessageModal() {
 
       const form = event.target;
       const data = new FormData(form);
+      const data_sent = Object.fromEntries(data);
 
-      const res = await fetch("/post", {
-        method: "POST",
-        body: JSON.stringify(Object.fromEntries(data)),
-        headers: { "Content-Type": "application/json" },
-      });
+      const trimmed = (data_sent.content || "").trim();
 
-      console.log(res);
-      const j_res = await res.json();
-      console.log(j_res);
-      if (!j_res.error) {
-        showNotification(j_res.msg, "success");
-      } else {
-        showNotification(j_res.error, "error");
+      if (!trimmed) {
+        showNotification("message vide interdit", "error");
+        return;
       }
-      document.querySelector(".modal-create").remove();
+
+      if (trimmed.length > MAX_MESSAGE_LENGTH) {
+        showNotification(
+          `message trop long (${MAX_MESSAGE_LENGTH} caractères max)`,
+          "error",
+        );
+        return;
+      }
+
+      data_sent.content = trimmed;
+
+      try {
+        const res = await fetch("/post", {
+          method: "POST",
+          body: JSON.stringify(data_sent),
+          headers: { "Content-Type": "application/json" },
+        });
+
+        const j_res = await res.json();
+
+        if (!j_res.error) {
+          showNotification(j_res.msg, "success");
+          document.querySelector(".modal-create").remove();
+          await loadMessages();
+        } else {
+          showNotification(j_res.error, "error");
+        }
+      } catch (err) {
+        showNotification("server unreachable", "error");
+      }
     });
 }

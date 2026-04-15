@@ -1,42 +1,58 @@
 const express = require("express");
 const router = express.Router();
 
-const bcrypt = require("bcrypt");
-
 const { knex, executeQuery } = require("../lib/db");
 
-router.post("/", async (req, res, next) => {
+const MAX_MESSAGE_LENGTH = 280;
+
+router.post("/", async (req, res) => {
   const body = req.body;
+
   if (!body.sessionId) {
-    res.json({ error: "you need to be logged to send messages" });
-    return;
+    return res.status(401).json({
+      error: "you need to be logged to send messages",
+    });
   }
-  const user = await executeQuery(
-    knex("sessions")
-      .select("user_name")
-      .where({ sessionId: body.sessionId })
-      .andWhere("expire_at", ">", new Date().toISOString())
-      .first(),
-  );
-  if (!user) {
-    res.json({ error: "session expired" });
-    return;
+
+  const content = (body.content || "").trim();
+
+  if (!content) {
+    return res.status(400).json({
+      error: "empty message forbidden",
+    });
   }
-  console.log(body);
+
+  if (content.length > MAX_MESSAGE_LENGTH) {
+    return res.status(400).json({
+      error: `message too long (${MAX_MESSAGE_LENGTH} max)`,
+    });
+  }
+
   try {
+    const user = await executeQuery(
+      knex("sessions")
+        .select("user_name")
+        .where({ sessionId: body.sessionId })
+        .andWhere("expire_at", ">", new Date().toISOString())
+        .first(),
+    );
+
+    if (!user || !user.rows || user.rows.length === 0) {
+      return res.status(401).json({ error: "session expired" });
+    }
+
     await executeQuery(
       knex("messages").insert({
         author: user.rows[0].user_name,
-        content: body.content,
+        content: content,
         created_at: new Date().toISOString(),
       }),
     );
+
+    return res.json({ msg: "message sent" });
   } catch (error) {
-    res.json({ error: "messages non accepter" });
-    return;
-  } finally {
-    res.json({ msg: "message sent" });
-    return;
+    console.error(error);
+    return res.status(500).json({ error: "message not accepted" });
   }
 });
 

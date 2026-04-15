@@ -4,7 +4,7 @@
    - utile pour voir visuellement les zones
 ========================================================= */
 
-* {
+/* * {
   box-sizing: border-box;
   border-color: red !important;
 }
@@ -22,7 +22,7 @@ label,
 input,
 textarea {
   border: 1px solid red !important;
-}
+} */
 
 /* =========================================================
    2) BASE PAGE
@@ -34,7 +34,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: #000;
+  background: #2a2a2a;
   color: #e7e9ea;
   font-family: Arial, Helvetica, sans-serif;
   min-height: 100vh;
@@ -194,7 +194,7 @@ h3 {
   width: 100%;
   max-width: 700px;
   margin: 0 auto;
-  background: #000;
+  background: #1e1e1e;
   border-left: 1px solid #2f3336 !important;
   border-right: 1px solid #2f3336 !important;
   min-height: calc(100vh - 70px);
@@ -207,7 +207,7 @@ h3 {
   font-weight: 800;
   border-bottom: 1px solid #2f3336 !important;
   background: rgba(0, 0, 0, 0.96);
-  position: sticky;
+  position: static;
   top: 62px;
   z-index: 10;
 }
@@ -246,7 +246,7 @@ h3 {
 }
 
 #div_messages .item:hover {
-  background: #080808;
+  background: #1a1a1a;
 }
 
 /* auteur du message */
@@ -296,6 +296,7 @@ h3 {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  height: calc(100vh - 140px);
 }
 
 #div_messages .item small {
@@ -421,7 +422,8 @@ h3 {
   }
 
   #div_messages h2 {
-    top: 110px;
+    position: static;
+    top: auto;
   }
 
   #notification-container {
