@@ -25,6 +25,20 @@ title.textContent = "False Social";
 title.className = "topbar-title";
 //Titre
 
+const topbarIdentity = document.createElement("div");
+topbarIdentity.className = "topbar-identity";
+
+const topbarAvatar = document.createElement("img");
+topbarAvatar.className = "topbar-avatar";
+topbarAvatar.src = "/avatar.svg";
+topbarAvatar.alt = "avatar";
+
+const topbarUsername = document.createElement("span");
+topbarUsername.className = "topbar-username";
+
+topbarIdentity.appendChild(topbarAvatar);
+topbarIdentity.appendChild(topbarUsername);
+
 const right = document.createElement("div");
 right.className = "topbar-right";
 
@@ -34,7 +48,13 @@ right.appendChild(b_write_msg);
 right.appendChild(b_logout);
 
 //ajout à la div menu
-div_choice.appendChild(title);
+const left = document.createElement("div");
+left.className = "topbar-left";
+
+left.appendChild(title);
+left.appendChild(topbarIdentity);
+
+div_choice.appendChild(left);
 div_choice.appendChild(right);
 
 const notificationContainer = document.createElement("div");
@@ -46,6 +66,16 @@ document.body.appendChild(notificationContainer);
 document.body.appendChild(div_messages);
 loadMessages();
 updateUI();
+setInterval(() => {
+  const scrollDiv = document.querySelector("#div_messages .scroll");
+  if (!scrollDiv) return;
+
+  const isAtTop = scrollDiv.scrollTop < 50;
+
+  if (!document.querySelector(".modal-create") && isAtTop) {
+    loadMessages();
+  }
+}, 5000);
 
 function enableModalCloseOnOutsideClick(modalOverlay) {
   modalOverlay.addEventListener("click", (event) => {
@@ -144,11 +174,20 @@ function isLoggedIn() {
 
 function updateUI() {
   const logged = isLoggedIn();
+  const username = localStorage.getItem("username") || "";
 
   b_login.style.display = logged ? "none" : "inline-block";
   b_create_account.style.display = logged ? "none" : "inline-block";
   b_write_msg.style.display = logged ? "inline-block" : "none";
   b_logout.style.display = logged ? "inline-block" : "none";
+
+  if (logged && username) {
+    topbarIdentity.style.display = "flex";
+    topbarUsername.textContent = `@${username}`;
+  } else {
+    topbarIdentity.style.display = "none";
+    topbarUsername.textContent = "";
+  }
 }
 
 async function logoutUser() {
@@ -170,6 +209,7 @@ async function logoutUser() {
 
     if (!j_res.error) {
       localStorage.removeItem("sessionId");
+      localStorage.removeItem("username");
       showNotification(j_res.msg, "success");
     } else {
       showNotification(j_res.error, "error");
@@ -302,6 +342,7 @@ async function interceptLoginModal() {
       if (!j_res.error) {
         showNotification(j_res.msg, "success");
         localStorage.setItem("sessionId", j_res.sessionId);
+        localStorage.setItem("username", data.get("user").trim());
         updateUI();
       } else {
         showNotification(j_res.error, "error");
@@ -369,7 +410,7 @@ async function loadMessages() {
     avatar.src = "/avatar.svg";
 
     const author = document.createElement("h3");
-    author.textContent = msg.author;
+    author.textContent = `@${msg.author}`;
 
     header.appendChild(avatar);
     header.appendChild(author);
@@ -432,7 +473,7 @@ async function next_messages() {
     avatar.src = "/avatar.svg";
 
     const author = document.createElement("h3");
-    author.textContent = msg.author;
+    author.textContent = `@${msg.author}`;
 
     header.appendChild(avatar);
     header.appendChild(author);

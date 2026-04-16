@@ -59,17 +59,30 @@ app.use("/messages", messagesRouter);
 app.use("/post", postLimiter, postRouter);
 app.use("/logout", logoutRouter);
 
-// const options = {
-//   key: process.env.PKEY,
-//   cert: process.env.CERT,
-// };
+//Partie Vercel lance http puis https est natif sur vercel
+const isVercel = !!process.env.VERCEL;
+const vercelEnv = process.env.VERCEL_ENV;
 
-// https.createServer(options, app).listen(3443, () => {
-//   console.log("you used htpps XD!!");
-// });
+if (isVercel || vercelEnv === "production" || vercelEnv === "preview") {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+} else {
+  //Partie Local lance en https
+  if (!process.env.PKEY || !process.env.CERT) {
+      console.error("Il manque PKEY ou CERT dans les variables d'environnement (.env) voir le .env.exemple");
+      process.exit(1);
+    }
 
-// app.listen(3000);
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  const options = {
+    key: process.env.PKEY,
+    cert: process.env.CERT,
+  };
+
+  https.createServer(options, app).listen(3443, () => {
+    console.log("you used htpps XD!!");
+  });
+}
+
+
