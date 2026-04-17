@@ -117,7 +117,6 @@ b_login.addEventListener("click", () => {
   interceptLoginModal();
 });
 
-
 function showNotification(message, type = "info") {
   const notif = document.createElement("div");
   notif.className = `notification notification-${type}`;
@@ -273,9 +272,7 @@ async function interceptSigninModal() {
         body: JSON.stringify(Object.fromEntries(data)),
         headers: { "Content-Type": "application/json" },
       });
-      console.log(res);
       const j_res = await res.json();
-      console.log(j_res);
       if (!j_res.error) {
         showNotification(j_res.msg, "success");
       } else {
@@ -337,7 +334,6 @@ async function interceptLoginModal() {
       });
 
       const j_res = await res.json();
-      console.log(j_res);
 
       if (!j_res.error) {
         showNotification(j_res.msg, "success");
@@ -380,8 +376,6 @@ async function loadMessages() {
   sessionStorage.last = 0; //index dernier message recus
   const res = await fetch("/messages");
   const j_res = await res.json();
-
-  console.log(j_res);
 
   div_messages.innerHTML = "";
 
