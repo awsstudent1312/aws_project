@@ -85,6 +85,8 @@ function enableModalCloseOnOutsideClick(modalOverlay) {
   });
 }
 
+//parti Creation de Compte
+
 //gestion du bouton de creation de compte
 b_create_account.addEventListener("click", () => {
   const div_modal = document.createElement("div");
@@ -99,126 +101,6 @@ b_create_account.addEventListener("click", () => {
   enableModalCloseOnOutsideClick(div_modal);
   interceptSigninModal();
 });
-
-//gestion du bouton login
-b_login.addEventListener("click", () => {
-  const div_modal = document.createElement("div");
-  div_modal.className = "modal-create";
-
-  const div_container = document.createElement("div");
-  div_container.className = "modal-container";
-
-  const modal = create_login_form();
-  div_container.appendChild(modal);
-  div_modal.appendChild(div_container);
-  document.body.appendChild(div_modal);
-
-  enableModalCloseOnOutsideClick(div_modal);
-  interceptLoginModal();
-});
-
-function showNotification(message, type = "info") {
-  const notif = document.createElement("div");
-  notif.className = `notification notification-${type}`;
-  notif.textContent = message;
-
-  const closeBtn = document.createElement("button");
-  closeBtn.className = "notification-close";
-  closeBtn.textContent = "×";
-  closeBtn.addEventListener("click", () => {
-    notif.remove();
-  });
-
-  notif.appendChild(closeBtn);
-  notificationContainer.appendChild(notif);
-
-  setTimeout(() => {
-    notif.classList.add("show");
-  }, 10);
-
-  setTimeout(() => {
-    notif.classList.remove("show");
-    setTimeout(() => notif.remove(), 300);
-  }, 3000);
-}
-
-//gestion de l'ajout de message
-b_write_msg.addEventListener("click", () => {
-  if (!isLoggedIn()) {
-    showNotification("error:\tyou need to login first");
-    return;
-  }
-  const div_modal = document.createElement("div");
-  div_modal.className = "modal-create";
-
-  const div_container = document.createElement("div");
-  div_container.className = "modal-container";
-
-  const modal = create_message_form();
-
-  div_container.appendChild(modal);
-  div_modal.appendChild(div_container);
-  document.body.appendChild(div_modal);
-
-  enableModalCloseOnOutsideClick(div_modal);
-  interceptMessageModal();
-});
-
-//gestion de la déconnection
-b_logout.addEventListener("click", logoutUser);
-
-function isLoggedIn() {
-  return !!localStorage.getItem("sessionId");
-}
-
-function updateUI() {
-  const logged = isLoggedIn();
-  const username = localStorage.getItem("username") || "";
-
-  b_login.style.display = logged ? "none" : "inline-block";
-  b_create_account.style.display = logged ? "none" : "inline-block";
-  b_write_msg.style.display = logged ? "inline-block" : "none";
-  b_logout.style.display = logged ? "inline-block" : "none";
-
-  if (logged && username) {
-    topbarIdentity.style.display = "flex";
-    topbarUsername.textContent = `@${username}`;
-  } else {
-    topbarIdentity.style.display = "none";
-    topbarUsername.textContent = "";
-  }
-}
-
-async function logoutUser() {
-  const sessionId = localStorage.getItem("sessionId");
-
-  if (!sessionId) {
-    updateUI();
-    return;
-  }
-
-  try {
-    const res = await fetch("/logout", {
-      method: "POST",
-      body: JSON.stringify({ sessionId }),
-      headers: { "Content-Type": "application/json" },
-    });
-
-    const j_res = await res.json();
-
-    if (!j_res.error) {
-      localStorage.removeItem("sessionId");
-      localStorage.removeItem("username");
-      showNotification(j_res.msg, "success");
-    } else {
-      showNotification(j_res.error, "error");
-    }
-  } catch (err) {
-    showNotification("server unreachable", "error");
-  }
-
-  updateUI();
-}
 
 function create_signin_form() {
   const modal = document.createElement("form");
@@ -239,7 +121,7 @@ function create_signin_form() {
   password.type = "password";
   const div_confirm = document.createElement("div");
   const label_confirm = document.createElement("label");
-  label_confirm.textContent = "Reapete:";
+  label_confirm.textContent = "Repeate password:";
   const confirm = document.createElement("input");
   confirm.name = "verif";
   confirm.type = "password";
@@ -281,6 +163,25 @@ async function interceptSigninModal() {
       document.querySelector(".modal-create").remove();
     });
 }
+
+//Partie connection
+
+//gestion du bouton login
+b_login.addEventListener("click", () => {
+  const div_modal = document.createElement("div");
+  div_modal.className = "modal-create";
+
+  const div_container = document.createElement("div");
+  div_container.className = "modal-container";
+
+  const modal = create_login_form();
+  div_container.appendChild(modal);
+  div_modal.appendChild(div_container);
+  document.body.appendChild(div_modal);
+
+  enableModalCloseOnOutsideClick(div_modal);
+  interceptLoginModal();
+});
 
 function create_login_form() {
   const modal = document.createElement("form");
@@ -346,6 +247,198 @@ async function interceptLoginModal() {
 
       document.querySelector(".modal-create").remove();
     });
+}
+
+//gestion de la déconnection
+b_logout.addEventListener("click", logoutUser);
+
+function isLoggedIn() {
+  return !!localStorage.getItem("sessionId");
+}
+
+async function logoutUser() {
+  const sessionId = localStorage.getItem("sessionId");
+
+  if (!sessionId) {
+    updateUI();
+    return;
+  }
+
+  try {
+    const res = await fetch("/logout", {
+      method: "POST",
+      body: JSON.stringify({ sessionId }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const j_res = await res.json();
+
+    if (!j_res.error) {
+      localStorage.removeItem("sessionId");
+      localStorage.removeItem("username");
+      showNotification(j_res.msg, "success");
+    } else {
+      showNotification(j_res.error, "error");
+    }
+  } catch (err) {
+    showNotification("server unreachable", "error");
+  }
+
+  updateUI();
+}
+
+function showNotification(message, type = "info") {
+  const notif = document.createElement("div");
+  notif.className = `notification notification-${type}`;
+  notif.textContent = message;
+
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "notification-close";
+  closeBtn.textContent = "×";
+  closeBtn.addEventListener("click", () => {
+    notif.remove();
+  });
+
+  notif.appendChild(closeBtn);
+  notificationContainer.appendChild(notif);
+
+  setTimeout(() => {
+    notif.classList.add("show");
+  }, 10);
+
+  setTimeout(() => {
+    notif.classList.remove("show");
+    setTimeout(() => notif.remove(), 300);
+  }, 3000);
+}
+
+//gestion de l'ajout de message
+b_write_msg.addEventListener("click", () => {
+  if (!isLoggedIn()) {
+    showNotification("error:\tyou need to login first");
+    return;
+  }
+  const div_modal = document.createElement("div");
+  div_modal.className = "modal-create";
+
+  const div_container = document.createElement("div");
+  div_container.className = "modal-container";
+
+  const modal = create_message_form();
+
+  div_container.appendChild(modal);
+  div_modal.appendChild(div_container);
+  document.body.appendChild(div_modal);
+
+  enableModalCloseOnOutsideClick(div_modal);
+  interceptMessageModal();
+});
+
+//envoie de messages
+function create_message_form() {
+  const modal = document.createElement("form");
+  modal.method = "POST";
+  modal.action = "/post";
+  modal.id = "modal_post";
+
+  const content = document.createElement("textarea");
+  content.name = "content";
+  content.rows = 5;
+  content.cols = 30;
+  content.maxLength = MAX_MESSAGE_LENGTH;
+  content.placeholder = "Quoi de neuf?";
+  modal.appendChild(content);
+
+  const counter = document.createElement("div");
+  counter.id = "message-counter";
+  counter.textContent = `0 / ${MAX_MESSAGE_LENGTH}`;
+  modal.appendChild(counter);
+
+  content.addEventListener("input", () => {
+    counter.textContent = `${content.value.length} / ${MAX_MESSAGE_LENGTH}`;
+  });
+
+  const hidden_session = document.createElement("input");
+  hidden_session.type = "hidden";
+  hidden_session.hidden = true;
+  hidden_session.name = "sessionId";
+  hidden_session.value = localStorage.getItem("sessionId");
+  modal.appendChild(hidden_session);
+
+  const submit = document.createElement("input");
+  submit.type = "submit";
+  submit.value = "send";
+  modal.appendChild(submit);
+
+  return modal;
+}
+
+async function interceptMessageModal() {
+  document
+    .getElementById("modal_post")
+    .addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const form = event.target;
+      const data = new FormData(form);
+      const data_sent = Object.fromEntries(data);
+
+      const trimmed = (data_sent.content || "").trim();
+
+      if (!trimmed) {
+        showNotification("message vide interdit", "error");
+        return;
+      }
+
+      if (trimmed.length > MAX_MESSAGE_LENGTH) {
+        showNotification(
+          `message trop long (${MAX_MESSAGE_LENGTH} caractères max)`,
+          "error",
+        );
+        return;
+      }
+
+      data_sent.content = trimmed;
+
+      try {
+        const res = await fetch("/post", {
+          method: "POST",
+          body: JSON.stringify(data_sent),
+          headers: { "Content-Type": "application/json" },
+        });
+
+        const j_res = await res.json();
+
+        if (!j_res.error) {
+          showNotification(j_res.msg, "success");
+          document.querySelector(".modal-create").remove();
+          await loadMessages();
+        } else {
+          showNotification(j_res.error, "error");
+        }
+      } catch (err) {
+        showNotification("server unreachable", "error");
+      }
+    });
+}
+
+//Update UI
+function updateUI() {
+  const logged = isLoggedIn();
+  const username = localStorage.getItem("username") || "";
+
+  b_login.style.display = logged ? "none" : "inline-block";
+  b_create_account.style.display = logged ? "none" : "inline-block";
+  b_write_msg.style.display = logged ? "inline-block" : "none";
+  b_logout.style.display = logged ? "inline-block" : "none";
+
+  if (logged && username) {
+    topbarIdentity.style.display = "flex";
+    topbarUsername.textContent = `@${username}`;
+  } else {
+    topbarIdentity.style.display = "none";
+    topbarUsername.textContent = "";
+  }
 }
 
 function formatRelativeDate(dateString) {
@@ -489,91 +582,4 @@ async function next_messages() {
 
     div_scroll.appendChild(div_msg);
   }
-}
-
-function create_message_form() {
-  const modal = document.createElement("form");
-  modal.method = "POST";
-  modal.action = "/post";
-  modal.id = "modal_post";
-
-  const content = document.createElement("textarea");
-  content.name = "content";
-  content.rows = 5;
-  content.cols = 30;
-  content.maxLength = MAX_MESSAGE_LENGTH;
-  content.placeholder = "Quoi de neuf?";
-  modal.appendChild(content);
-
-  const counter = document.createElement("div");
-  counter.id = "message-counter";
-  counter.textContent = `0 / ${MAX_MESSAGE_LENGTH}`;
-  modal.appendChild(counter);
-
-  content.addEventListener("input", () => {
-    counter.textContent = `${content.value.length} / ${MAX_MESSAGE_LENGTH}`;
-  });
-
-  const hidden_session = document.createElement("input");
-  hidden_session.type = "hidden";
-  hidden_session.hidden = true;
-  hidden_session.name = "sessionId";
-  hidden_session.value = localStorage.getItem("sessionId");
-  modal.appendChild(hidden_session);
-
-  const submit = document.createElement("input");
-  submit.type = "submit";
-  submit.value = "send";
-  modal.appendChild(submit);
-
-  return modal;
-}
-
-async function interceptMessageModal() {
-  document
-    .getElementById("modal_post")
-    .addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const form = event.target;
-      const data = new FormData(form);
-      const data_sent = Object.fromEntries(data);
-
-      const trimmed = (data_sent.content || "").trim();
-
-      if (!trimmed) {
-        showNotification("message vide interdit", "error");
-        return;
-      }
-
-      if (trimmed.length > MAX_MESSAGE_LENGTH) {
-        showNotification(
-          `message trop long (${MAX_MESSAGE_LENGTH} caractères max)`,
-          "error",
-        );
-        return;
-      }
-
-      data_sent.content = trimmed;
-
-      try {
-        const res = await fetch("/post", {
-          method: "POST",
-          body: JSON.stringify(data_sent),
-          headers: { "Content-Type": "application/json" },
-        });
-
-        const j_res = await res.json();
-
-        if (!j_res.error) {
-          showNotification(j_res.msg, "success");
-          document.querySelector(".modal-create").remove();
-          await loadMessages();
-        } else {
-          showNotification(j_res.error, "error");
-        }
-      } catch (err) {
-        showNotification("server unreachable", "error");
-      }
-    });
 }
